@@ -1,0 +1,369 @@
+﻿<div class="container maindiv" style="border:2px solid gray;padding:4px;width: 592px;">
+    <h4 style="border-bottom:solid 2px gray;color:#0073AA;margin-left:-4px;margin-right:-4px"><center>Bill of Material Creation</center></h4>
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            @Html.Label("Document", new { @class = "col-md-4 control-label", @style = "padding-top:9px;margin-left:68px;" })
+            <div class="col-md-5">
+                @Html.DropDownList("Document", (IEnumerable<SelectListItem>)ViewBag.Document, new
+           {
+               id = "drpDocument",
+               @class = "form-control",
+               multiple = "multiple"
+           })
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            @Html.Label("Output", new { @class = "col-md-4 control-label", @style = "padding-top:9px;margin-left:68px;" })
+            <div class="col-md-5">
+                @Html.DropDownList("Output", (IEnumerable<SelectListItem>)ViewBag.Output, new
+           {
+               id = "drpOutput",
+               @class = "form-control",
+               multiple = "multiple"
+           })
+            </div>
+        </div>
+    </div>
+    <br />
+    <div align="right">
+        <input type="button" id="btnPost" style="background-color:#008CBA;border-radius:5px;height:35px;width:105px;color:white; background-color:#008CBA;margin-left:100px;align-content:flex-start" class="btn btn-primary btn-sm" value="OK" />
+        <button type="button" style="height:35px;width:105px;color:white; background-color:#008CBA;align-content:flex-end" id="btnCancel" class="btn btn-primary btn-sm" onclick="Focus8WAPI.gotoHomePage();"><b>Close</b></button>
+        <button type="button" style="height:35px;width:105px;color:white; background-color:#008CBA;align-content:flex-end" id="btnReload" class="btn btn-primary btn-sm" onclick="window.location.reload(true);"><b>Refresh</b></button>
+    </div>
+</div>
+<div class="text-center" style="text-align: left;">
+    <br />
+    <div class="tableFixHead" style="overflow: auto; height:400px;" id="tab1">
+        <div align="right">
+            <input type="button" id="btnPst" style="background-color:#008CBA;border-radius:5px;height:35px;width:105px;color:white; background-color:#008CBA;margin-left:0px;align-content:flex-start" class="btn btn-primary btn-sm" value="Post" />
+            <input type="button" id="btnClose" style="background-color:#008CBA;border-radius:5px;height:35px;width:105px;color:white; background-color:#008CBA;margin-left:0px;align-content:flex-start" class="btn btn-primary btn-sm" value="Close" onclick="$('#tab1').hide()" />
+        </div>
+        <table class="table table-bordered table-striped report-table-div1" id="tab" >
+            <thead class="sticky">
+                <tr class="table-head" style="width:120px;background-color: #428bca;">
+                    <th>Select All<br /><input type="checkbox" id="selectAll"> </th>
+                    <th>Document Number</th>
+                    <th>Output Item</th>
+                    <th hidden>Id</th>
+                </tr>
+            </thead>
+
+            <tbody id="output"></tbody>
+
+        </table>
+    </div>
+</div>
+<div id="preloader" class="modal" style="align-content:center">
+    <div class="center">
+        <img src="~/Content/loader4.gif" alt="Processing..." style="margin-left: 523px;margin-top: 250px;" />
+    </div>
+</div>
+<style>
+    #preloader img {
+        width: 150px;
+        margin: 100px 0 0 600px;
+    }
+
+    #preloader {
+        /* background-color: lightgray;*/
+        opacity: 0.5;
+        z-index: 1500;
+    }
+</style>
+@section scripts{
+    <script src="~/Scripts/FClient.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+    <script>
+        var compid=@ViewBag.compid;
+        var multiselectConfig = {
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            filterBehavior: 'text',
+            selectAllJustVisible: true,
+            selectAllText: 'select all',
+            buttonWidth: '180px',
+            dropRight: false,
+            maxHeight: 280,
+            includeResetOption: false,
+            nonSelectedText: 'Please Select',
+            columns: 0,
+        };
+        $(document).ready(function () {
+            debugger;
+
+            $('#tab1').hide();
+            $("#btnPst").attr("disabled", true);
+            $('#drpDocument').multiselect(multiselectConfig);
+            $('#drpOutput').multiselect(multiselectConfig);
+
+        });
+        $('#drpDocument').change(function(){
+           // $('#drpOutput').prop('disabled', true);
+            $("#drpOutput").multiselect("disable");
+        })
+        $('#drpOutput').change(function(){
+            //$('#drpDocument').prop('disabled', true);
+            $("#drpDocument").multiselect("disable");
+        })
+        $('#btnPost').click(function () {
+            debugger;
+            $('#preloader').show();
+
+           var selecteddocs = [];
+           var selectedops = [];
+           var $selected1 = $("#drpDocument");
+            $selected1.find('option:selected').each(function () {
+                selecteddocs.push($(this).val());
+                //CountryListId=CountryListId+$(this).val()+',';  // data seperated by commas
+            });
+            var $selected2=$("#drpOutput");
+            $selected2.find('option:selected').each(function () {
+                selectedops.push($(this).val());
+                //CountryListId=CountryListId+$(this).val()+',';  // data seperated by commas
+            });
+            console.log(selecteddocs);
+            console.log(selectedops);
+
+
+            //var seldoc = $("#drpDocument option:selected");
+            //var seldocval=$("#drpDocument").val();
+            ////var seldovc=
+            //var seloutput = $("#drpOutput option:selected");
+            //var seloutputval= $("#drpOutput").val();
+            if(selecteddocs.length==0 && selectedops.length==0)
+            {
+                alert('Please select Document or Output');
+                $('#preloader').hide();
+            }
+            else
+            {
+                //if(seldoc.length>0)
+                //{
+                //    $('#drpDocument').prop('disabled', true);
+                //}
+                //else
+                //{
+                //    if (seloutput.length > 0) {
+                //        $('#drpOutput').prop('disabled', true);
+                //    }
+                //    else {
+                        $.ajax({
+                            type: 'Post',
+                            url: '@Url.Action("GetGrid", "BOMMenu")',
+                            dataType: 'json',
+                            data: { compid,  selecteddocs, selectedops },
+                            success: function (response) {
+                                debugger;
+                                if (response.status == true) {
+                                    debugger;
+                                    //alert(response.Message);
+
+                                      $('#tab1').show();
+                                    $('#output').empty();
+                                    //if (response.mplst.length <= 0) {
+                                    //    trHTML += '<tr><td colspan="10" align="center">' + 'No Data found' + '</td></tr>';
+                                    //    $('#output').append(trHTML);
+                                    //    $('#btnPDF').hide();
+                                    //    // $('#preloader').hide();
+                                    //}
+                                    // else {
+                                    for (var i = 0; i < response.iblst.length; i++) {
+                                        debugger;
+                                        var imageUrl = '';
+                                        var trHTML = '';
+                                        trHTML += '<tr><td>' + '<input type="checkbox" class="chkRow">' +
+                                            '</td><td>' + response.iblst[i].DocNo +
+                                            '</td><td>' + response.iblst[i].OPItem +
+                                            '</td><td hidden>' + response.iblst[i].OPItemId +
+                                            //'</td><td>' + response.mplst[i].DateofIP +
+                                            //'</td><td>' + response.mplst[i].AgeingDays +
+                                            //'</td><td>' + response.mplst[i].StoreName +
+                                            //'</td><td>' + response.mplst[i].DesignNo +
+                                            //'</td><td>' + response.mplst[i].Firm +
+                                            '</td></tr>';
+                                        $('#output').append(trHTML);
+                                         $('#preloader').hide();
+                                    }
+                                     }
+                                    if (response.status == false) {
+                                        alert(response.Message);
+                                    }
+                              //  }
+                            },
+                            error: function (error) {
+                                // Focus8WAPI.continueModule(Focus8WAPI.ENUMS.MODULE_TYPE.TRANSACTION, false);
+                                alert(error.Message);
+                                console.log('Error:', error.Message);
+                            },
+                            complete: function () {
+                                // Hide preloader after completing the AJAX call
+                                $('#preloader').hide();
+                            }
+                        });
+                   // }
+                }
+           // }
+        })
+        $('#selectAll').click(function (e) {
+            debugger;
+            var Total=0;
+            var IsChecked= $(this).closest('table').find('td input:checkbox').prop('checked', this.checked);    //to select all fields checkboxes
+
+            if(this.checked){
+
+                $("#btnPst").removeAttr("disabled");
+            }
+            else{
+
+                $("#btnPst").attr("disabled", "disabled");
+            }
+        });
+        var lastChecked = -1;
+
+       // var lastCheckedIndex = -1;
+
+        $("body").on('click', '.chkRow', function (e) {
+      //  $('#tab').on('click', "tbody > tr input[data-role='checkbox'].k-checkbox", function (e) {
+            debugger;
+            var $checkboxes = $(".chkRow");
+            var currentIndex = $checkboxes.index(this);
+
+            if (e.shiftKey && lastChecked !== -1) {
+                var start = Math.min(lastChecked, currentIndex);
+                var end = Math.max(lastChecked, currentIndex);
+
+                for (var i = start; i <= end; i++) {
+                    $checkboxes.eq(i).prop("checked", true);
+                }
+            }
+
+            // lastCheckedIndex = currentIndex;
+            //$checkboxes.click(function(e) {
+            //    if (!lastChecked) {
+            //        lastChecked = this;
+            //        return;
+            //    }
+
+            //    if (e.shiftKey) {
+            //        var start = $chkboxes.index(this);
+            //        var end = $checkboxes.index(lastChecked);
+
+            //        $chkboxes.slice(Math.min(start,end), Math.max(start,end)+ 1).prop('checked', lastChecked.checked);
+            //    }
+
+            lastChecked = currentIndex;
+            //});
+
+            var chkrowcnt = $(".chkRow:checked").length;
+
+            if (chkrowcnt > 0) {
+                $("#btnPst").removeAttr("disabled");
+                $("#selectAll").prop("checked", chkrowcnt === $checkboxes.length);
+            } else {
+                $("#selectAll").prop("checked", false);
+                $("#btnPst").attr("disabled", "disabled");
+            }
+        });
+        //$("body").on('change', '.chkRow', function () {
+        //    debugger
+
+        //    var chkrowcnt = $("body .chkRow:checked").length;
+        //    if (chkrowcnt > 0) {
+        //        debugger;
+        //        if ($(this).is(":checked")) {
+        //            var isAllChecked = 0;
+        //            $(".chkRow").each(function () {
+        //                if (!this.checked)
+        //                    isAllChecked = 1;
+        //                $("#btnPst").removeAttr("disabled");
+        //            })
+        //            if (isAllChecked == 0) {
+        //                $("#btnPst").removeAttr("disabled");
+        //                //$("#btnCreate").attr("disabled", "disabled");
+        //                $("#selectAll").prop("checked", true);
+        //            }
+        //        }
+        //        else {
+        //            $("#selectAll").prop("checked", false);
+        //        }
+        //        $("body .chkRow:checked").each(function () {
+        //            var tr = $(this).parents('tr');
+        //            $("#btnPst").removeAttr("disabled");
+
+        //        });
+        //        //$('#LOTQuantity').val(Quantity);
+        //    }
+        //    else
+        //    {
+        //        $("#selectAll").prop("checked", false);
+        //        $("#btnPst").attr("disabled", "disabled");
+        //    }
+        //});
+        $('#btnPst').click(function(){
+            debugger;
+            //if ($('.chkRow:checkbox:checked').length == 0) {
+            //    alert("Please select a row  you want to post");
+            //$('#preloader').hide();
+            //    return false;
+            //}
+            var itemGrdlst = [];
+            $('#preloader').show();
+            $("#output tr").each(function (index,e) {
+                debugger;
+                var row = $(this);
+                const isChecked = $(e).find('.chkRow').is(':checked');
+                if (isChecked) {
+                    var rowData = {
+                       // VendorName: row.find("td:eq(0)").text(),
+                        DocNo: row.find("td:eq(1)").text(),
+                        OPItem: row.find("td:eq(2)").text(),
+                        OPItemId: parseFloat(row.find("td:eq(3)").text()),
+
+                    };
+                    itemGrdlst.push(rowData);
+                }
+            })
+            $.ajax({
+                type: 'Post',
+                url: '@Url.Action("PostBOM", "BOMMenu")',
+                dataType: 'json',
+                data: { itemGrdlst, compid },
+                success: function (response) {
+                    debugger;
+
+                    if (response.status == true) {
+                        debugger;
+                        alert(response.Message);
+                        window.location.reload(true);
+                        // $('#preloader').hide();
+
+                    }
+                    // }
+                    if (response.status == false) {
+                        alert(response.Message);
+                        //$('#preloader').hide();
+                        //   location.reload(true);
+
+                    }
+                },
+                error: function (error) {
+                    Focus8WAPI.continueModule(Focus8WAPI.ENUMS.MODULE_TYPE.TRANSACTION, false);
+                   // $('#preloader').hide();
+                    alert(error.Message);
+                    console.log('Error:', error.Message);
+                },
+                complete: function () {
+                    // Hide preloader after completing the AJAX call
+                    $('#preloader').hide();
+                }
+            });
+        });
+    </script>
+}

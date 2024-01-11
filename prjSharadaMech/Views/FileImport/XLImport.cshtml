@@ -1,0 +1,105 @@
+﻿
+
+<div class="container" style="border:2px solid #0073AA;padding:40px 5px 40px 5px">
+    <div class="row" style="margin-top:5px;margin-bottom:10px;">
+        <div class="col-lg-4"><label style="margin-top:5px;font-weight:normal;margin-left: 252px;padding-top:11px;">Excel File: </label></div>
+        <div class="col-lg-4">
+            <label for="file" class="input input-file">
+                <div class="button">
+                    <input id='file' type="file" class="form-control vexfile" accept=".xlsx,.xls" name="file" style="margin-left:71px;"> @*onchange="txtUpld.value = this.value"*@
+                </div>
+                @*<input id="txtUpld" type="text" class="form-control" placeholder="upload files" readonly="">*@
+            </label>
+        </div>
+
+    </div>
+    <div class="col-lg-9" style="margin-top:10px;margin-bottom:10px;margin-left: 596px;">
+        
+        <input type="button" class="btn btn-primary" id="btnImport" value="Import & Update" />
+        <a href="@Url.Action("XLImport", "FileImport", new { companyId =ViewBag.companyId })" class="btn btn-primary" id="btnNew">Refresh</a>
+        <button type="button" class="btn btn-danger" id="btnClose" onclick="Focus8WAPI.gotoHomePage()">Close</button>
+    </div>
+ </div>
+<div id="preloader" class="modal" style="align-content:center">
+    <div class="center">
+        <img src="~/Content/loader4.gif" alt="Processing..." style="margin-left: 524px;margin-top: 243px;" />
+    </div>
+</div>
+<style>
+    #preloader img {
+        width: 150px;
+        margin: 100px 0 0 600px;
+    }
+
+    #preloader {
+        background-color: lightgray;
+        opacity: 0.5;
+        z-index: 1500;
+    }
+</style>
+@section scripts{
+<script src="~/Scripts/FClient.js"></script>
+    <script type="text/javascript">
+        $("#preloader").hide();
+        $('#btnImport').click(function () {
+            debugger;
+            //  $('#progress').show();
+            $("#preloader").show();
+            var cId=@ViewBag.companyId;
+            var fileInput = document.getElementById('file');
+            var file = fileInput.files[0];
+           // console.log(fileInput);
+           
+            if (!file) {
+                alert('Please select a file.');
+                $("#preloader").hide();
+                return;
+            }
+            var fileName = file.name;
+            console.log(fileName);
+            if (fileName.split('.').pop().toLowerCase() == 'xls') {
+                //alert("Excel is successfully attached and ready to Import");
+
+            }
+            else if (fileName.split('.').pop().toLowerCase() == 'xlsx') {
+                //alert("Excel is successfully attached and ready to Import");
+            }
+            else {
+                alert("Please select the excel file(.xls,.xlsx)");
+                $("#preloader").hide();
+                return;
+            }
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('CompanyId', cId);
+            $.ajax({
+                url: "@Url.Action("Exsheets", "FileImport")",
+                type: "POST",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (response) {
+                if(response.status==true)
+                {
+                    alert(response.Message);
+                    $("#preloader").hide();
+                    location.reload();
+                }
+                if(response.status==false)
+                {
+                    alert(response.Message);
+                    $("#preloader").hide();
+                    location.reload();
+                }
+
+            }
+        });
+           // $('#progress').hide();
+        })
+        //function getFileExtension(filename) {
+        //    var parts = filename.split('.');
+        //    return parts[parts.length - 1];
+        //}
+    </script>   
+    
+    }
