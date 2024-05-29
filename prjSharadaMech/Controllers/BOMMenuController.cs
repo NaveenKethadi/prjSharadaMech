@@ -168,7 +168,7 @@ namespace prjSharadaMech.Controllers
                     // string getbomid = $@"select bomh.iBomId from mMRP_BomHeader bomh join mMRP_BomVariantHeader
                     //          bomvar on bomh.iBomId=bomvar.iBomId where bomh.sName='{opitemname}' and bomvar.sName='{opitemname}'";
                     //checking for bom existance
-                    string getbomid1 = $@" select bomh.iBomId from mMRP_BomHeader bomh join mMRP_BomVariantHeader
+                    string getbomid1 = $@"select bomh.iBomId from mMRP_BomHeader bomh join mMRP_BomVariantHeader
                           bomvar on bomh.iBomId=bomvar.iBomId and bomh.iStatus<>5 where bomh.sName='{opitemname}' --and bomvar.sName='{opitemname}'
                              and bomvar.iStatus<>5";
                     DataSet dsgetbomid1 = ClsDataAcceslayer.GetData1(getbomid1, compid, ref error);
@@ -390,7 +390,7 @@ update mMRP_BOMBody set iProductId={opitemid},fQty={oqty},fQty2={oqty},iUnit={od
                         if (error != "") {
                             obj.SetLog(error);
                             throw new Exception(error);
-                        };
+                        }
                         obj.SetLog($"New BOM '{opitemname}({opitemcode})' Created");
                         string cr = opitemname +",";
                         created = created + cr;

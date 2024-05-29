@@ -296,7 +296,6 @@ namespace prjSharadaMech.Controllers
             {
                 return Json(new {  Message = ex.Message });
             }
-         
         }
         public ActionResult CreateVarint(int CompanyId, int BomId, int vtype, string DocNo)
         {
@@ -504,7 +503,6 @@ namespace prjSharadaMech.Controllers
                                    thv on thv.iHeaderId=h.iHeaderId where iVoucherType=7938 and sVoucherNo='{DocNo}')";
                     int ver = obj.GetQueryExe(verupdatqry, CompanyId, ref error);
                 }
-               
                 return Json(new { status = true, Message = "Bom's variant is created" });
             }
             catch(Exception ex)
